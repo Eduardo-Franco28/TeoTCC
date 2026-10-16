@@ -1,0 +1,16 @@
+services:
+  teo-db:
+    image: pgvector/pgvector:pg17
+    container_name: teo_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: teo
+      POSTGRES_USER: teo
+      POSTGRES_PASSWORD: teo
+    ports:
+      - "5434:5432"
+    volumes:
+      - teo_data:/var/lib/postgresql/data
+
+volumes:
+  teo_data:
