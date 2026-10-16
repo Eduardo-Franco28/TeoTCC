@@ -111,7 +111,7 @@ def _save_document(entry: dict, content_hash: str, chunks: list[Chunk], vectors:
 
             with conn.cursor() as cursor:
                 cursor.executemany(
-                    "INSERT INTO teo.chunks (document_id, position, page, content, embedding) VALUES (%s, %s, %s, %s, %s)",
+                    "INSERT INTO teo.chunks (document_id, position, page, content, embedding) VALUES (%s, %s, %s, %s, %s::halfvec)",
                     [
                         (document_id, position, chunk.page, chunk.content, np.array(vector, dtype=np.float32))
                         for position, (chunk, vector) in enumerate(zip(chunks, vectors))
@@ -176,11 +176,11 @@ def _search(vector: list[float], limit: int) -> list[Source]:
     with db.pool().connection() as conn:
         rows = conn.execute(
             """
-            SELECT d.title, d.link, c.page, c.content, 1 - (c.embedding <=> %s) AS score
+            SELECT d.title, d.link, c.page, c.content, 1 - (c.embedding <=> %s::halfvec) AS score
             FROM teo.chunks c
             JOIN teo.documents d ON d.id = c.document_id
             WHERE d.status = 'ativo'
-            ORDER BY c.embedding <=> %s
+            ORDER BY c.embedding <=> %s::halfvec
             LIMIT %s
             """,
             (np.array(vector, dtype=np.float32), np.array(vector, dtype=np.float32), limit),

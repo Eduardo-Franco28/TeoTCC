@@ -29,12 +29,12 @@ def create_schema() -> None:
                 position INT NOT NULL,
                 page INT,
                 content TEXT NOT NULL,
-                embedding vector({settings.teo_embedding_dim}) NOT NULL
+                embedding halfvec({settings.teo_embedding_dim}) NOT NULL
             )
         """)
         conn.execute("""
             CREATE INDEX IF NOT EXISTS chunks_embedding_idx
-            ON teo.chunks USING hnsw (embedding vector_cosine_ops)
+            ON teo.chunks USING hnsw (embedding halfvec_cosine_ops)
         """)
         conn.execute("""
             CREATE TABLE IF NOT EXISTS teo.conversations (

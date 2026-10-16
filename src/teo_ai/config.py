@@ -10,13 +10,13 @@ class Settings(BaseSettings):
     tcc_jwt_secret: str = ""
     teo_web_origins: str = "http://localhost:5173"
 
-    llm_base_url: str = "https://integrate.api.nvidia.com/v1"
+    llm_base_url: str = "https://openrouter.ai/api/v1"
     llm_api_key: str = ""
     teo_model: str = ""
 
-    teo_embedding_model: str = ""
-    teo_embedding_dim: int = 1024
-    teo_embedding_input_type: bool = True
+    teo_embedding_model: str = "nvidia/nemotron-3-embed-1b:free"
+    teo_embedding_dim: int = 2048
+    teo_embedding_input_type: bool = False
 
     max_agent_steps: int = 6
     max_history_messages: int = 12
