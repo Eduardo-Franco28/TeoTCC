@@ -17,6 +17,7 @@ Tema: {theme}
 Escolha {count} palavras em português do Brasil ligadas ao tema. Regras para cada palavra:
 - substantivo concreto e comum, que um único emoji represente bem;
 - de 3 a 8 letras, só letras (sem espaço, hífen ou número);
+- escrita correta, com acentos e cedilha quando a palavra tiver (ex.: CAMARÃO, MAÇÃ, PÉ);
 - sem palavras repetidas.
 Responda só com JSON, sem texto antes ou depois, neste formato:
 {{"title": "título curto da atividade", "words": [{{"word": "GATO", "emoji": "🐱"}}]}}
