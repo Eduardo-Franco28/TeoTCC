@@ -57,5 +57,7 @@ Documentos que não mudaram são pulados, e os que saem do `fontes.json` deixam 
 | `GET /health` | verifica se a API está no ar |
 | `POST /chat` | conversa com o Teo (`message` e, opcionalmente, `conversationId`) |
 | `GET /conversations/{id}/messages` | histórico de uma conversa |
+| `GET /conversations` | conversas da pessoa, da mais recente para a mais antiga |
+| `POST /activities/letters` | cria um rascunho de completar a palavra (`theme` ou `words`, `count`, `hidden`) |
 
 Todas, menos `/health`, exigem o token do Teo emitido pelo `POST /auth/teo/exchange` do Spring.

@@ -56,6 +56,11 @@ def create_schema() -> None:
             CREATE INDEX IF NOT EXISTS messages_conversation_idx
             ON teo.messages (conversation_id, id)
         """)
+        conn.execute("ALTER TABLE teo.conversations ADD COLUMN IF NOT EXISTS title TEXT")
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS conversations_user_idx
+            ON teo.conversations (user_email, created_at DESC)
+        """)
 
 
 def open_pool() -> None:

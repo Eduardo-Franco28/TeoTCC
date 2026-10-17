@@ -4,16 +4,43 @@ from teo_ai import db
 from teo_ai.config import settings
 
 
-def create(user_email: str) -> uuid.UUID:
+TITLE_LENGTH = 60
+LIST_LIMIT = 50
+
+
+def make_title(message: str) -> str:
+    text = " ".join(message.split())
+    return text if len(text) <= TITLE_LENGTH else text[:TITLE_LENGTH - 1].rstrip() + "…"
+
+
+def create(user_email: str, first_message: str) -> uuid.UUID:
     conversation_id = uuid.uuid4()
 
     with db.pool().connection() as conn:
         conn.execute(
-            "INSERT INTO teo.conversations (id, user_email) VALUES (%s, %s)",
-            (conversation_id, user_email),
+            "INSERT INTO teo.conversations (id, user_email, title) VALUES (%s, %s, %s)",
+            (conversation_id, user_email, make_title(first_message)),
         )
 
     return conversation_id
+
+
+def list_for(user_email: str) -> list[dict]:
+    with db.pool().connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT c.id, COALESCE(c.title, 'Conversa'), COALESCE(MAX(m.created_at), c.created_at) AS updated_at
+            FROM teo.conversations c
+            LEFT JOIN teo.messages m ON m.conversation_id = c.id
+            WHERE c.user_email = %s
+            GROUP BY c.id
+            ORDER BY updated_at DESC
+            LIMIT %s
+            """,
+            (user_email, LIST_LIMIT),
+        ).fetchall()
+
+    return [{"id": str(row[0]), "title": row[1], "updatedAt": row[2].isoformat()} for row in rows]
 
 
 def belongs_to(conversation_id: uuid.UUID, user_email: str) -> bool:
