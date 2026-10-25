@@ -56,8 +56,12 @@ Documentos que não mudaram são pulados, e os que saem do `fontes.json` deixam 
 | --- | --- |
 | `GET /health` | verifica se a API está no ar |
 | `POST /chat` | conversa com o Teo (`message` e, opcionalmente, `conversationId`) |
+| `POST /chat/stream` | mesma conversa, mas a resposta chega aos poucos (eventos `status`, `delta`, `reset`, `done`, `error`) |
 | `GET /conversations/{id}/messages` | histórico de uma conversa |
 | `GET /conversations` | conversas da pessoa, da mais recente para a mais antiga |
 | `POST /activities/letters` | cria um rascunho de completar a palavra (`theme` ou `words`, `count`, `hidden`) |
+| `POST /activities/sum` | cria um rascunho de soma com bolinhas (`count`, `maxTotal` 10, 20 ou 30) |
+| `POST /activities/groups` | cria um rascunho de agrupar (`theme`, `subjectId`, `groups`, `items`) |
+| `GET /subjects` | matérias do IntegraMente |
 
 Todas, menos `/health`, exigem o token do Teo emitido pelo `POST /auth/teo/exchange` do Spring.

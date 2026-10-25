@@ -1,15 +1,19 @@
 import json
+import random
 import re
 import unicodedata
 
 from teo_ai import integramente, llm
 from teo_ai.auth import TeoUser
-from teo_ai.config import settings
 
 WORD_PATTERN = re.compile(r"^[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ]{2,8}$")
 VOWELS = set("AEIOUÁÀÂÃÉÊÍÓÔÕÚ")
 FALLBACK_EMOJI = "⭐"
 LANGUAGES_SUBJECT = "linguagens"
+MATH_SUBJECT = "matematica"
+MAX_GROUP_NAME = 14
+MAX_ITEM_NAME = 18
+MAX_QUESTION = 60
 
 WORDS_PROMPT = """
 Você ajuda a montar atividades de completar a palavra para crianças e adolescentes autistas.
@@ -21,6 +25,19 @@ Escolha {count} palavras em português do Brasil ligadas ao tema. Regras para ca
 - sem palavras repetidas.
 Responda só com JSON, sem texto antes ou depois, neste formato:
 {{"title": "título curto da atividade", "words": [{{"word": "GATO", "emoji": "🐱"}}]}}
+""".strip()
+
+GROUPS_PROMPT = """
+Você ajuda a montar atividades de agrupar para crianças e adolescentes autistas: a criança arrasta cada item para o grupo certo.
+Tema: {theme}
+Crie {groups} grupos com {items} itens em cada um. Regras:
+- cada item pertence a um único grupo, sem dúvida nenhuma (nada que caiba em dois grupos);
+- itens concretos e comuns, que um único emoji represente bem;
+- nome do grupo com até 14 letras e nome do item com até 18, em português do Brasil, com acentos;
+- sem itens repetidos.
+Escreva também uma pergunta curta para a criança, com até 40 letras, como "Onde eles vivem?".
+Responda só com JSON, sem texto antes ou depois, neste formato:
+{{"title": "título curto da atividade", "question": "Onde eles vivem?", "groups": [{{"name": "Mar", "items": [{{"name": "Peixe", "emoji": "🐟"}}]}}]}}
 """.strip()
 
 EMOJI_PROMPT = """
@@ -80,11 +97,7 @@ def parse_json(text: str) -> dict:
 
 
 async def ask_json(prompt: str) -> dict:
-    response = await llm.client().chat.completions.create(
-        model=settings.teo_model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.4,
-    )
+    response = await llm.chat([{"role": "user", "content": prompt}], temperature=0.4)
     return parse_json(response.choices[0].message.content)
 
 
@@ -119,11 +132,15 @@ async def emojis_for(words: list[str]) -> dict[str, str]:
     return {normalize_word(str(key)): str(value).strip() for key, value in data.items() if value}
 
 
-async def languages_subject_id(session) -> int:
-    subjects = json.loads(integramente.result_text(await session.call_tool("list_subjects", {})))
+async def list_subjects(session) -> list[dict]:
+    return json.loads(integramente.result_text(await session.call_tool("list_subjects", {})))
+
+
+async def subject_id_by_name(session, name: str) -> int:
+    subjects = await list_subjects(session)
 
     for subject in subjects:
-        if plain(subject["name"]).startswith(LANGUAGES_SUBJECT):
+        if plain(subject["name"]).startswith(name):
             return subject["id"]
 
     if not subjects:
@@ -162,15 +179,113 @@ async def create_letters(
     ]
 
     async with integramente.open_session(user.token) as session:
-        subject_id = await languages_subject_id(session)
+        subject_id = await subject_id_by_name(session, LANGUAGES_SUBJECT)
         result = await session.call_tool(
             "create_letters_draft",
             {"title": title, "subjectId": subject_id, "words": payload},
         )
 
+    return draft_from(result)
+
+
+def draft_from(result) -> dict:
     text = integramente.result_text(result)
 
     if result.is_error:
         raise CreationError(text.splitlines()[0] if text else "Não foi possível criar a atividade")
 
     return json.loads(text)
+
+
+def pick_sums(count: int, max_total: int) -> list[dict]:
+    min_total = 2 if max_total <= 10 else max_total // 2
+    pairs = sorted(
+        {(first, second) for first in range(1, max_total) for second in range(first, max_total)
+         if min_total <= first + second <= max_total}
+    )
+    chosen = random.sample(pairs, min(count, len(pairs)))
+
+    sums = []
+    for first, second in chosen:
+        if random.random() < 0.5:
+            first, second = second, first
+        sums.append({"first": first, "second": second})
+
+    return sums
+
+
+async def create_sum(user: TeoUser, count: int, max_total: int) -> dict:
+    sums = pick_sums(count, max_total)
+
+    async with integramente.open_session(user.token) as session:
+        subject_id = await subject_id_by_name(session, MATH_SUBJECT)
+        result = await session.call_tool(
+            "create_sum_draft",
+            {"title": f"Somas até {max_total}", "subjectId": subject_id, "sums": sums},
+        )
+
+    return draft_from(result)
+
+
+def clean_groups(data: dict, groups: int, items: int) -> tuple[str, str, list[dict]]:
+    question = str(data.get("question") or "").strip()
+    if not question or len(question) > MAX_QUESTION:
+        raise ValueError("pergunta inválida")
+
+    seen_groups: set[str] = set()
+    seen_items: set[str] = set()
+    result = []
+
+    for group in (data.get("groups") or [])[:groups]:
+        name = str(group.get("name") or "").strip()
+        if not name or len(name) > MAX_GROUP_NAME or plain(name) in seen_groups:
+            raise ValueError("grupo inválido")
+        seen_groups.add(plain(name))
+
+        clean_items = []
+        for item in group.get("items") or []:
+            item_name = str(item.get("name") or "").strip()
+            emoji = str(item.get("emoji") or "").strip()
+            if not item_name or len(item_name) > MAX_ITEM_NAME or not emoji or plain(item_name) in seen_items:
+                continue
+            seen_items.add(plain(item_name))
+            clean_items.append({"name": item_name, "emoji": emoji})
+
+        if len(clean_items) < items:
+            raise ValueError("grupo com poucos itens")
+
+        result.append({"name": name, "items": clean_items[:items]})
+
+    if len(result) != groups:
+        raise ValueError("quantidade de grupos errada")
+
+    title = str(data.get("title") or "").strip()[:60]
+    return title, question, result
+
+
+async def groups_from_theme(theme: str, groups: int, items: int) -> tuple[str, str, list[dict]]:
+    for _ in range(2):
+        try:
+            data = await ask_json(GROUPS_PROMPT.format(theme=theme, groups=groups, items=items))
+            return clean_groups(data, groups, items)
+        except (ValueError, json.JSONDecodeError, AttributeError, TypeError):
+            continue
+
+    raise CreationError("O Teo não conseguiu montar os grupos para esse tema agora. Tente de novo ou mude o tema.")
+
+
+async def create_groups(user: TeoUser, theme: str, subject_id: int, groups: int, items: int) -> dict:
+    title, question, payload = await groups_from_theme(theme.strip(), groups, items)
+
+    async with integramente.open_session(user.token) as session:
+        result = await session.call_tool(
+            "create_groups_draft",
+            {"title": title or theme.strip()[:60], "subjectId": subject_id, "question": question, "groups": payload},
+        )
+
+    return {"draft": draft_from(result), "question": question, "groups": payload}
+
+
+async def subjects(user: TeoUser) -> list[dict]:
+    async with integramente.open_session(user.token) as session:
+        return await list_subjects(session)

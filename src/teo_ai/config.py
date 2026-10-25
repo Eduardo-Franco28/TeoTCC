@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://openrouter.ai/api/v1"
     llm_api_key: str = ""
     teo_model: str = ""
+    teo_fallback_models: str = "google/gemma-4-31b-it:free,nvidia/nemotron-3-super-120b-a12b:free"
+    llm_timeout: float = 45.0
 
     teo_embedding_model: str = "nvidia/nemotron-3-embed-1b:free"
     teo_embedding_dim: int = 2048
@@ -26,6 +28,11 @@ class Settings(BaseSettings):
     @property
     def mcp_url(self) -> str:
         return self.integramente_api_url.rstrip("/") + "/mcp"
+
+    @property
+    def model_chain(self) -> list[str]:
+        models = [self.teo_model, *self.teo_fallback_models.split(",")]
+        return list(dict.fromkeys(model.strip() for model in models if model.strip()))
 
     @property
     def cors_origins(self) -> list[str]:

@@ -189,7 +189,19 @@ def _search(vector: list[float], limit: int) -> list[Source]:
     return [Source(title=row[0], link=row[1], page=row[2], content=row[3], score=float(row[4])) for row in rows]
 
 
+def _has_documents() -> bool:
+    with db.pool().connection() as conn:
+        row = conn.execute(
+            "SELECT EXISTS (SELECT 1 FROM teo.chunks c JOIN teo.documents d ON d.id = c.document_id WHERE d.status = 'ativo')"
+        ).fetchone()
+
+    return bool(row and row[0])
+
+
 async def search(query: str) -> list[Source]:
+    if not await asyncio.to_thread(_has_documents):
+        return []
+
     vector = (await llm.embed([query], "query"))[0]
     sources = await asyncio.to_thread(_search, vector, settings.knowledge_results)
     return [source for source in sources if source.score >= settings.knowledge_min_score]
