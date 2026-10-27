@@ -6,11 +6,37 @@ services:
     environment:
       POSTGRES_DB: teo
       POSTGRES_USER: teo
-      POSTGRES_PASSWORD: teo
+      POSTGRES_PASSWORD: ${TEO_DB_PASSWORD:-teo}
     ports:
-      - "5434:5432"
+      - "127.0.0.1:${TEO_DB_PORT:-5434}:5432"
     volumes:
       - teo_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U teo -d teo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  teo-ai:
+    build: .
+    image: teo-ai
+    profiles: ["app"]
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+        format: raw
+    environment:
+      PORT: 8000
+      DATABASE_URL: postgresql://teo:${TEO_DB_PASSWORD:-teo}@teo-db:5432/teo
+      INTEGRAMENTE_API_URL: ${DOCKER_INTEGRAMENTE_API_URL:-http://host.docker.internal:8080}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${TEO_AI_PORT:-8000}:8000"
+    depends_on:
+      teo-db:
+        condition: service_healthy
 
 volumes:
   teo_data:

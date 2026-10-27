@@ -27,6 +27,21 @@ Backend do Teo, o assistente com IA do IntegraMente. Conversa com adultos sobre 
 
 O Spring precisa estar rodando em `INTEGRAMENTE_API_URL` para o Teo criar atividades.
 
+## Rodando com Docker
+
+A imagem tem só a API; o banco vem do mesmo `docker-compose.yml`. A API fica no perfil `app`, então `docker compose up -d` continua subindo só o banco.
+
+```bash
+docker compose --profile app up -d --build
+```
+
+- As variáveis vêm do `.env`, lido sem interpretar `$`: escreva os valores **sem aspas**, mesmo os que têm `$`.
+- Dentro do container, `DATABASE_URL` aponta para o banco do compose e o Spring é procurado em `http://host.docker.internal:8080`. Para outro endereço, defina `DOCKER_INTEGRAMENTE_API_URL`.
+- Variáveis opcionais do compose: `TEO_DB_PASSWORD` (senha do banco, padrão `teo`), `TEO_DB_PORT` (padrão `5434`, só em `127.0.0.1`) e `TEO_AI_PORT` (padrão `8000`).
+- Para alimentar a base de dentro do container: `docker compose --profile app exec teo-ai teo-ingest`.
+
+Em uma VPS, o mesmo comando sobe tudo. Defina `TEO_DB_PASSWORD` antes do primeiro `up`, porque a senha do banco só é definida quando o volume é criado.
+
 ## Base de conhecimento
 
 Coloque os documentos (`.pdf`, `.md` ou `.txt`) em `knowledge/` e descreva cada um em `knowledge/fontes.json`:
