@@ -1,1 +1,97 @@
-[]
+[
+  {
+    "arquivo": "01-cdc-addm-2025.md",
+    "titulo": "Prevalência do autismo nos EUA — CDC/ADDM (2025)",
+    "link": "https://www.cdc.gov/mmwr/volumes/74/ss/ss7402a1.htm"
+  },
+  {
+    "arquivo": "02-oms-ficha-autismo.md",
+    "titulo": "Autismo — Ficha informativa da Organização Mundial da Saúde (2025)",
+    "link": "https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders"
+  },
+  {
+    "arquivo": "03-censo-2022-ibge.md",
+    "titulo": "Autismo no Censo Demográfico 2022 — IBGE",
+    "link": "https://eshoje.com.br/geral/2025/05/censo-demografico-revela-pela-primeira-vez-dados-sobre-autismo-no-brasil/"
+  },
+  {
+    "arquivo": "04-loomes-2017-proporcao-sexo.md",
+    "titulo": "Proporção entre meninos e meninas no autismo — Loomes et al. (2017)",
+    "link": "https://bvbvf1.bib-bvb.de/vufind/PrimoRecord/cdi_proquest_miscellaneous_1903169887"
+  },
+  {
+    "arquivo": "05-bai-2019-genetica.md",
+    "titulo": "Genética e ambiente no autismo — Bai et al. (2019)",
+    "link": "https://www.news-medical.net/news/20190722/Study-provides-strongest-evidence-yet-for-autism-being-a-genetic-condition.aspx"
+  },
+  {
+    "arquivo": "06-hviid-2019-vacina.md",
+    "titulo": "Vacina tríplice viral e autismo — Hviid et al. (2019)",
+    "link": "https://mprnews.org/story/2019/03/04/npr-a-large-study-provides-more-evidence-that-mmr-vaccines-dont-cause-autism"
+  },
+  {
+    "arquivo": "07-ncaep-2020-praticas-baseadas-evidencia.md",
+    "titulo": "28 práticas baseadas em evidência para autismo — NCAEP (2020)",
+    "link": "https://ncaep.fpg.unc.edu/sites/ncaep.fpg.unc.edu/files/imce/documents/EBP%20Executive%20Summary.pdf"
+  },
+  {
+    "arquivo": "08-project-aim-2020.md",
+    "titulo": "Project AIM: meta-análise de intervenções para crianças pequenas — Sandbank et al. (2020)",
+    "link": "https://apps.asha.org/EvidenceMaps/Articles/ArticleSummary/d4986f77-7f51-45a3-abad-1adc92f8968c"
+  },
+  {
+    "arquivo": "09-sandbank-bmj-2023.md",
+    "titulo": "Qualidade das pesquisas sobre intervenção precoce — Sandbank et al. (BMJ, 2023)",
+    "link": "https://news.unchealthcare.org/2023/11/researchers-reveal-low-quality-studies-of-autism-early-interventions-dominate-the-field"
+  },
+  {
+    "arquivo": "10-sandbank-jama-pediatrics-2024.md",
+    "titulo": "Mais horas de intervenção não trazem mais resultado — Sandbank et al. (JAMA Pediatrics, 2024)",
+    "link": "https://news.unchealthcare.org/2024/06/new-study-suggests-higher-amounts-of-intervention-may-not-be-more-helpful-for-children-on-the-autism-spectrum/"
+  },
+  {
+    "arquivo": "11-cochrane-2018-eibi.md",
+    "titulo": "Intervenção comportamental intensiva precoce (EIBI/ABA) — Revisão Cochrane (2018)",
+    "link": "https://www.cochrane.org/CD009260/BEHAV_early-intensive-behavioural-intervention-eibi-young-children-autism-spectrum-disorder-asd"
+  },
+  {
+    "arquivo": "12-pact-2016.md",
+    "titulo": "PACT: treinamento dos pais em comunicação social — Pickles et al. (Lancet, 2016)",
+    "link": "https://evidence.nihr.ac.uk/alert/parent-focused-therapy-has-some-long-term-benefits-for-children-with-autism/"
+  },
+  {
+    "arquivo": "13-esdm-dawson-2010.md",
+    "titulo": "Modelo Denver de Intervenção Precoce (ESDM) — Dawson et al. (2010)",
+    "link": "https://asatonline.org/research-treatment/research-synopses/randomized-controlled-trial-of-an-intervention-for-toddlers-with-autism-the-early-start-denver-model/"
+  },
+  {
+    "arquivo": "14-esdm-rogers-2021.md",
+    "titulo": "Modelo Denver (ESDM) contra ABA intensivo, em 15 ou 25 horas — Rogers et al. (2021)",
+    "link": "https://asatonline.org/research-treatment/research-synopses/multisite-randomized-controlled-trial-compare/"
+  },
+  {
+    "arquivo": "15-aap-2020-identificacao-precoce.md",
+    "titulo": "Identificação precoce e cuidado — Academia Americana de Pediatria (AAP, 2020)",
+    "link": "https://www.news-medical.net/news/20191217/New-autism-guidelines-target-early-detection.aspx"
+  },
+  {
+    "arquivo": "16-nice-cg170.md",
+    "titulo": "Apoio a crianças e jovens autistas — Diretriz NICE CG170 (Reino Unido)",
+    "link": "https://www.nice.org.uk/guidance/cg170/ifp/chapter/providing-care-and-managing-autism"
+  },
+  {
+    "arquivo": "17-lei-12764-2012.md",
+    "titulo": "Lei Berenice Piana (Lei nº 12.764/2012) e CIPTEA",
+    "link": "https://www2.camara.leg.br/legin/fed/lei/2012/lei-12764-27-dezembro-2012-774838-normaatualizada-pl.html"
+  },
+  {
+    "arquivo": "18-diretrizes-ministerio-saude-2014.md",
+    "titulo": "Diretrizes de Atenção à Reabilitação da Pessoa com TEA — Ministério da Saúde (2014)",
+    "link": "https://portaldeboaspraticas.iff.fiocruz.br/biblioteca/diretrizes-de-atencao-a-reabilitacao-da-pessoa-com-transtornos-do-espectro"
+  },
+  {
+    "arquivo": "19-lancet-commission-2022.md",
+    "titulo": "Comissão Lancet sobre o futuro do cuidado e da pesquisa em autismo (2022)",
+    "link": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10388786"
+  }
+]

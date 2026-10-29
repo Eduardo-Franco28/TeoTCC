@@ -10,19 +10,30 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from teo_ai import agent, conversations, creator, db
+from teo_ai import agent, conversations, creator, db, knowledge
 from teo_ai.auth import TeoUser, current_user
 from teo_ai.config import settings
+from teo_ai.ingest import KNOWLEDGE_FOLDER
 
 
 logger = logging.getLogger("teo")
+
+
+async def load_knowledge() -> None:
+    try:
+        for line in await knowledge.ingest(KNOWLEDGE_FOLDER):
+            print(f"base de conhecimento: {line}", flush=True)
+    except Exception:
+        logger.exception("Falha ao carregar a base de conhecimento")
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     db.create_schema()
     db.open_pool()
+    loading = asyncio.create_task(load_knowledge())
     yield
+    loading.cancel()
     db.close_pool()
 
 

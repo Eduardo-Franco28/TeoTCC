@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any, AsyncIterator
 
@@ -14,8 +15,10 @@ com frases curtas, tom acolhedor e sem jargão.
 
 O que você faz:
 - Tira dúvidas sobre autismo. Quando a base de conhecimento tiver algo sobre a pergunta, os trechos chegam
-  junto com ela. Responda só com o que os trechos trouxerem e cite as fontes no fim, numeradas, com título e
-  link. Se precisar de mais, use search_knowledge com a dúvida reescrita. Se não houver nada útil, diga que
+  junto com ela. Responda só com o que os trechos trouxerem. Não escreva lista de fontes, títulos de estudos
+  nem links no texto: as fontes aparecem sozinhas abaixo da sua resposta. Quando usar os trechos, mencione
+  isso de forma natural, por exemplo "segundo as fontes abaixo". Se precisar de mais, use search_knowledge
+  com a dúvida reescrita. Se não houver nada útil, diga que
   não tem essa informação na sua base e sugira conversar com um profissional.
 - Cria atividades no IntegraMente de três tipos. Use list_subjects para achar o id da matéria:
   completar a palavra (create_letters_draft, matéria Linguagens); soma com bolinhas (create_sum_draft,
@@ -89,6 +92,8 @@ TOOL_STATUS = {
 
 CONTEXT_PROMPT = "Trechos da base de conhecimento encontrados para a pergunta do adulto. Use só o que for relevante:"
 
+SOURCES_HEADING = re.compile(r"\n[ \t]*[#*_]*[ \t]*(?:fontes|referências|referencias)\b[^\n]{0,20}\n", re.IGNORECASE)
+
 
 def cite(source: knowledge.Source) -> dict:
     return {"title": source.title, "link": source.link, "page": source.page}
@@ -103,6 +108,11 @@ def add_sources(result: AgentResult, sources: list[knowledge.Source]) -> None:
 
 def excerpts(sources: list[knowledge.Source]) -> str:
     return json.dumps([{**cite(source), "content": source.content} for source in sources], ensure_ascii=False)
+
+
+def strip_sources(reply: str) -> str:
+    match = SOURCES_HEADING.search(reply)
+    return reply[:match.start()].rstrip() if match else reply
 
 
 def mentions(reply: str, sources: list[knowledge.Source]) -> bool:
@@ -189,6 +199,8 @@ async def run_stream(user: TeoUser, history: list[dict], message: str) -> AsyncI
                 result.reply = state["content"]
                 if context and mentions(result.reply, context):
                     add_sources(result, context)
+                if result.sources:
+                    result.reply = strip_sources(result.reply)
                 yield {"type": "done", "result": result}
                 return
 
